@@ -1,8 +1,10 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/typing_event.dart';
 
+import '../services/supabase_service.dart';
+
 class TypingService {
-  static const String typingTable = 'chat_typing';
+  static String get typingTable => SupabaseService.isDev ? 'chat_typing_dev' : 'chat_typing';
 
   static SupabaseClient get client => Supabase.instance.client;
 

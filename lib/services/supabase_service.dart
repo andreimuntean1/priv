@@ -55,8 +55,8 @@ class SupabaseService {
         .from(messagesTable)
         .select('''
           *,
-          sender:users!sender_id(*),
-          file_attachments(*)
+          sender:$usersTable!sender_id(*),
+          file_attachments:$fileAttachmentsTable(*)
         ''')
         .order('created_at', ascending: true);
     return List<Map<String, dynamic>>.from(messages);
@@ -67,8 +67,8 @@ class SupabaseService {
         .from(messagesTable)
         .select('''
           *,
-          sender:users!sender_id(*),
-          file_attachments(*)
+          sender:$usersTable!sender_id(*),
+          file_attachments:$fileAttachmentsTable(*)
         ''')
         .eq('id', messageId)
         .single();
@@ -125,8 +125,8 @@ class SupabaseService {
           .from(messagesTable)
           .select('''
             *,
-            sender:users!sender_id(*),
-            file_attachments(*)
+            sender:$usersTable!sender_id(*),
+            file_attachments:$fileAttachmentsTable(*)
           ''')
           .eq('id', response['id'])
           .single();
@@ -180,8 +180,8 @@ class SupabaseService {
         .from(messagesTable)
         .select('''
           *,
-          sender:users!sender_id(*),
-          file_attachments(*)
+          sender:$usersTable!sender_id(*),
+          file_attachments:$fileAttachmentsTable(*)
         ''')
         .textSearch('content', query);
     return List<Map<String, dynamic>>.from(response);

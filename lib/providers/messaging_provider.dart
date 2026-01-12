@@ -174,6 +174,11 @@ class MessagingProvider extends ChangeNotifier {
         } else {
           _messages.insert(insertIndex, newMessage);
         }
+
+        // Real-time payload doesn't include joined data (sender, attachments).
+        // If it's not a simple text message or we need sender info, fetch the full record.
+        // We do this for ALL new real-time messages to ensure consistency.
+        _refreshMessage(newMessage.id!); 
       }
     }
 
@@ -341,29 +346,54 @@ class MessagingProvider extends ChangeNotifier {
   }
 
   Future<void> _refreshMessage(String messageId) async {
-    try {
-      final messageData = await SupabaseService.getMessageById(messageId);
-      
-      if (messageData != null) {
-        final updatedMessage = Message.fromJson(messageData);
+    int retries = 0;
+    const maxRetries = 5;
+    
+    while (retries < maxRetries) {
+      try {
+        print('Refreshing message $messageId (Attempt ${retries + 1})');
+        final messageData = await SupabaseService.getMessageById(messageId);
         
-        final existingIndex = _messages.indexWhere((m) => m.id == messageId);
-        
-        if (existingIndex != -1) {
-          _messages[existingIndex] = updatedMessage;
-          _populateReplyMessages();
-          notifyListeners();
-        } else {
-          // Message not found in list, add it
-          _messages.add(updatedMessage);
-          _messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-          _populateReplyMessages();
-          notifyListeners();
+        if (messageData != null) {
+          final updatedMessage = Message.fromJson(messageData);
+          
+          // Check if we need to retry (e.g. expected attachments but found none)
+          bool needsRetry = false;
+          if (updatedMessage.messageType != MessageType.text && 
+              updatedMessage.attachments.isEmpty) {
+            print('Message ${updatedMessage.id} expects attachments but found none. Retrying...');
+            needsRetry = true;
+          }
+
+          final existingIndex = _messages.indexWhere((m) => m.id == messageId);
+          
+          if (existingIndex != -1) {
+            _messages[existingIndex] = updatedMessage;
+            _populateReplyMessages();
+            notifyListeners();
+          } else {
+            // Message not found in list, add it
+            _messages.add(updatedMessage);
+            _messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+            _populateReplyMessages();
+            notifyListeners();
+          }
+
+          if (!needsRetry) {
+             print('Message $messageId refreshed successfully with ${updatedMessage.attachments.length} attachments');
+             return;
+          }
         }
+      } catch (e) {
+        print('Error refreshing message $messageId: $e');
       }
-    } catch (e) {
-      // Error refreshing message
+      
+      retries++;
+      if (retries < maxRetries) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
     }
+    print('Failed to fully hydrate message $messageId after $maxRetries attempts');
   }
 
   void _cleanup() {
