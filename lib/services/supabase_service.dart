@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:typed_data';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SupabaseService {
   static final SupabaseService _instance = SupabaseService._internal();
@@ -8,11 +9,14 @@ class SupabaseService {
 
   static SupabaseClient get client => Supabase.instance.client;
 
+  static bool get isDev => dotenv.env['APP_ENV'] == 'dev';
+
   // Database table names
-  static const String usersTable = 'users';
-  static const String messagesTable = 'messages';
-  static const String fileAttachmentsTable = 'file_attachments';
-  static const String fcmTokensTable = 'fcm_tokens';
+  static String get usersTable => isDev ? 'users_dev' : 'users';
+  static String get messagesTable => isDev ? 'messages_dev' : 'messages';
+  static String get fileAttachmentsTable => isDev ? 'file_attachments_dev' : 'file_attachments';
+  static String get fcmTokensTable => isDev ? 'fcm_tokens_dev' : 'fcm_tokens';
+  static String get messageStatusTable => isDev ? 'message_status_dev' : 'message_status';
 
   static const String supabaseUrl = 'https://csjsqfqdacymcuijbseh.supabase.co';
   static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzanNxZnFkYWN5bWN1aWpic2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkzNjUsImV4cCI6MjA3ODA4NTM2NX0.5spSlh55HSnk_HvTPQlNvtmIM7NLpA3siLVPurSh1j8';

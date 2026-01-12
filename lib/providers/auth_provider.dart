@@ -102,7 +102,9 @@ class AuthProvider extends ChangeNotifier {
       // Check if email is authorized
       final allowedEmails = [
         'andrei.priv@andreimuntean.dev',
-        'luci.priv@andreimuntean.dev'
+        'luci.priv@andreimuntean.dev',
+        'priv.test1@andreimuntean.dev',
+        'priv.test2@andreimuntean.dev'
       ];
       
       if (!allowedEmails.contains(email.trim().toLowerCase())) {
@@ -188,7 +190,7 @@ class AuthProvider extends ChangeNotifier {
   // Simple user selection for 2-user system
   Future<List<app_user.User>> getAllUsers() async {
     try {
-      final response = await _supabase.from('users').select();
+      final response = await _supabase.from(SupabaseService.usersTable).select();
       return response.map<app_user.User>((json) => app_user.User.fromJson(json)).toList();
     } catch (e) {
       return [];

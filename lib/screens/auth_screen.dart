@@ -137,13 +137,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   if (!value!.contains('@')) {
                                     return 'Da te rog frumos să introduci un email valid';
                                   }
-                                  final allowedEmails = [
-                                    'andrei.priv@andreimuntean.dev',
-                                    'luci.priv@andreimuntean.dev'
-                                  ];
-                                  if (!allowedEmails.contains(value.trim().toLowerCase())) {
-                                    return 'De ce încerci să te loghezi cu un email neautorizat? Mai încearcă.';
-                                  }
+                                  // Validation is handled in AuthProvider
                                   return null;
                                 },
                               ),
