@@ -197,6 +197,9 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
       final userId = context.read<AuthProvider>().currentUser?.id;
       if (userId != null) {
         await NotificationService().initialize(userId);
+        if (mounted) {
+          context.read<MessagingProvider>().clearNotifications();
+        }
       }
     });
   }
