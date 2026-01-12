@@ -236,64 +236,62 @@ class _AnimatedMessageBubbleState extends State<AnimatedMessageBubble>
                               if (!isMyMessage && !showAvatar) const SizedBox(width: 40),
                               
                               // Message content
-                              Flexible(
-                                child: Listener(
-                                  onPointerDown: (event) {
-                                    if (kIsWeb) {
-                                      final isControlPressed = HardwareKeyboard.instance.isControlPressed;
-                                      final isMetaPressed = HardwareKeyboard.instance.isMetaPressed;
-                                      if (isControlPressed || isMetaPressed) {
-                                        _triggerReply();
-                                      }
+                              Listener(
+                                onPointerDown: (event) {
+                                  if (kIsWeb) {
+                                    final isControlPressed = HardwareKeyboard.instance.isControlPressed;
+                                    final isMetaPressed = HardwareKeyboard.instance.isMetaPressed;
+                                    if (isControlPressed || isMetaPressed) {
+                                      _triggerReply();
                                     }
-                                  },
-                                  child: GestureDetector(
-                                    onLongPress: () => _showMessageOptions(context),
-                                    child: Container(
-                                      constraints: BoxConstraints(
-                                        maxWidth: MediaQuery.of(context).size.width * 0.75,
-                                      ),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isMyMessage
-                                            ? themeColors.myMessage
-                                            : themeColors.otherMessage,
-                                        borderRadius: _getBorderRadius(isMyMessage, showAvatar),
-                                        boxShadow: _isDragging && _swipeOffset > 10.0
-                                            ? [
-                                                BoxShadow(
-                                                  color: Colors.black.withOpacity(0.1),
-                                                  blurRadius: 4,
-                                                  offset: const Offset(0, 2),
-                                                ),
-                                              ]
-                                            : null,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          // Reply indicator
-                                          if (widget.message.isReply) _buildReplyIndicator(context),
-                                          
-                                          // File attachments
-                                          if (widget.message.hasAttachments) ...[
-                                            ...widget.message.attachments.map(
-                                              (attachment) => FileAttachmentWidget(
-                                                attachment: attachment,
-                                                isMyMessage: isMyMessage,
+                                  }
+                                },
+                                child: GestureDetector(
+                                  onLongPress: () => _showMessageOptions(context),
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: MediaQuery.of(context).size.width * 0.75,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isMyMessage
+                                          ? themeColors.myMessage
+                                          : themeColors.otherMessage,
+                                      borderRadius: _getBorderRadius(isMyMessage, showAvatar),
+                                      boxShadow: _isDragging && _swipeOffset > 10.0
+                                          ? [
+                                              BoxShadow(
+                                                color: Colors.black.withOpacity(0.1),
+                                                blurRadius: 4,
+                                                offset: const Offset(0, 2),
                                               ),
+                                            ]
+                                          : null,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // Reply indicator
+                                        if (widget.message.isReply) _buildReplyIndicator(context),
+                                        
+                                        // File attachments
+                                        if (widget.message.hasAttachments) ...[
+                                          ...widget.message.attachments.map(
+                                            (attachment) => FileAttachmentWidget(
+                                              attachment: attachment,
+                                              isMyMessage: isMyMessage,
                                             ),
-                                            if (widget.message.content.isNotEmpty) const SizedBox(height: 8),
-                                          ],
-                                          
-                                          // Text content
-                                          if (widget.message.content.isNotEmpty)
-                                            _buildMessageText(context, isMyMessage),
+                                          ),
+                                          if (widget.message.content.isNotEmpty) const SizedBox(height: 8),
                                         ],
-                                      ),
+                                        
+                                        // Text content
+                                        if (widget.message.content.isNotEmpty)
+                                          _buildMessageText(context, isMyMessage),
+                                      ],
                                     ),
                                   ),
                                 ),
@@ -372,20 +370,18 @@ class _AnimatedMessageBubbleState extends State<AnimatedMessageBubble>
     return Container(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 3,
             height: 20,
             decoration: BoxDecoration(
               color: lightTextColor,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(1.5),
-                bottomRight: Radius.circular(1.5),
-              ),
+              borderRadius: BorderRadius.circular(1.5),
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
+          Flexible(
             child: Text(
               'Răspuns la: ${widget.message.replyToMessage?.replyDisplayContent ?? "un mesaj"}',
               style: TextStyle(

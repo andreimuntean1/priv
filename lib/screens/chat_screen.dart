@@ -176,8 +176,19 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     // Auto-scroll to bottom when replying
     _scrollToBottom();
     
-    // Request focus on input
-    _inputFocusNode.requestFocus();
+    // Request focus on input with delay to ensure keyboard opens on mobile
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _inputFocusNode.requestFocus();
+        
+        // Scroll again after keyboard opens (keyboard animation takes ~300ms)
+        Future.delayed(const Duration(milliseconds: 400), () {
+          if (mounted) {
+            _scrollToBottom();
+          }
+        });
+      }
+    });
   }
 
   void _clearReply() {

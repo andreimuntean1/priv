@@ -59,45 +59,43 @@ class MessageBubble extends StatelessWidget {
               if (!isMyMessage && !showAvatar) const SizedBox(width: 40),
               
               // Message content
-              Flexible(
-                child: GestureDetector(
-                  onLongPress: () => _showMessageOptions(context),
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isMyMessage
-                          ? themeColors.myMessage
-                          : themeColors.otherMessage,
-                      borderRadius: _getBorderRadius(isMyMessage, showAvatar),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Reply indicator
-                        if (message.isReply) _buildReplyIndicator(context),
-                        
-                        // File attachments
-                        if (message.hasAttachments) ...[
-                          ...message.attachments.map(
-                            (attachment) => FileAttachmentWidget(
-                              attachment: attachment,
-                              isMyMessage: isMyMessage,
-                            ),
+              GestureDetector(
+                onLongPress: () => _showMessageOptions(context),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isMyMessage
+                        ? themeColors.myMessage
+                        : themeColors.otherMessage,
+                    borderRadius: _getBorderRadius(isMyMessage, showAvatar),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Reply indicator
+                      if (message.isReply) _buildReplyIndicator(context),
+                      
+                      // File attachments
+                      if (message.hasAttachments) ...[
+                        ...message.attachments.map(
+                          (attachment) => FileAttachmentWidget(
+                            attachment: attachment,
+                            isMyMessage: isMyMessage,
                           ),
-                          if (message.content.isNotEmpty) const SizedBox(height: 8),
-                        ],
-                        
-                        // Text content
-                        if (message.content.isNotEmpty)
-                          _buildMessageText(context, isMyMessage),
+                        ),
+                        if (message.content.isNotEmpty) const SizedBox(height: 8),
                       ],
-                    ),
+                      
+                      // Text content
+                      if (message.content.isNotEmpty)
+                        _buildMessageText(context, isMyMessage),
+                    ],
                   ),
                 ),
               ),
@@ -170,20 +168,18 @@ class MessageBubble extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 3,
             height: 20,
             decoration: BoxDecoration(
               color: Theme.of(context).primaryColor,
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(1.5),
-                bottomRight: Radius.circular(1.5),
-              ),
+              borderRadius: BorderRadius.circular(1.5),
             ),
           ),
           const SizedBox(width: 8),
-          Expanded(
+          Flexible(
             child: Text(
               'Răspuns la: ${message.replyToMessage?.content ?? "un mesaj"}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
