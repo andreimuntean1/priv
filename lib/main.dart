@@ -36,9 +36,15 @@ void main() async {
   );
   
   // Initialize Supabase
+  // For web: Use hardcoded credentials (anon key is public anyway)
+  // For mobile: Use .env file
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL'] ?? '',
-    anonKey: dotenv.env['SUPABASE_ANON_KEY'] ?? '',
+    url: kIsWeb 
+      ? 'https://csjsqfqdacymcuijbseh.supabase.co'
+      : (dotenv.env['SUPABASE_URL'] ?? ''),
+    anonKey: kIsWeb
+      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzanNxZnFkYWN5bWN1aWpic2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkzNjUsImV4cCI6MjA3ODA4NTM2NX0.5spSlh55HSnk_HvTPQlNvtmIM7NLpA3siLVPurSh1j8'
+      : (dotenv.env['SUPABASE_ANON_KEY'] ?? ''),
   );
 
   runApp(const PrivateMessagingApp());

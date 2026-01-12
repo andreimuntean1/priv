@@ -46,7 +46,7 @@ class SupabaseService {
         .from(usersTable)
         .select()
         .eq('id', userId)
-        .single();
+        .maybeSingle();
     return response;
   }
 

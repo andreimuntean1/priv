@@ -13,6 +13,8 @@ class UpdateNotificationBanner extends StatefulWidget {
 }
 
 class _UpdateNotificationBannerState extends State<UpdateNotificationBanner> {
+  bool _isExpanded = false;
+  
   Future<void> _dismiss() async {
     context.read<UpdateNotificationProvider>().dismissUpdate();
   }
@@ -110,20 +112,32 @@ class _UpdateNotificationBannerState extends State<UpdateNotificationBanner> {
                 
                 if (update.changelog != null && update.changelog!.isNotEmpty) ...[
                   const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: themeColors.background,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      update.changelog!,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: themeColors.textPrimary,
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                    child: AnimatedSize(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: themeColors.background,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          update.changelog!,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: themeColors.textPrimary,
+                          ),
+                          maxLines: _isExpanded ? null : 3,
+                          overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                        ),
                       ),
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
