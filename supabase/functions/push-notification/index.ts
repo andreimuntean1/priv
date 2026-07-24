@@ -62,7 +62,7 @@ serve(async (req) => {
   try {
     const payload: WebhookPayload = await req.json()
 
-    if (payload.table === 'messages' && payload.type === 'INSERT') {
+    if ((payload.table === 'messages' || payload.table === 'messages_dev') && payload.type === 'INSERT') {
       // Validate Service Account Secret
       if (!FCM_SERVICE_ACCOUNT_JSON) {
         console.error('FCM_SERVICE_ACCOUNT secret is missing');
@@ -75,9 +75,12 @@ serve(async (req) => {
       const message = payload.record;
       const senderId = message.sender_id;
       
+      const usersTable = payload.table === 'messages_dev' ? 'users_dev' : 'users';
+      const tokensTable = payload.table === 'messages_dev' ? 'fcm_tokens_dev' : 'fcm_tokens';
+
       // Get Sender Name
       const { data: sender } = await supabase
-        .from('users')
+        .from(usersTable)
         .select('username')
         .eq('id', senderId)
         .single();
@@ -86,7 +89,7 @@ serve(async (req) => {
 
       // Get Recipients (Broadcast to all except sender)
       const { data: tokens, error: tokensError } = await supabase
-        .from('fcm_tokens')
+        .from(tokensTable)
         .select('token')
         .neq('user_id', senderId);
 

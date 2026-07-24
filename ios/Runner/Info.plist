@@ -73,7 +73,7 @@
         <key>NSExceptionDomains</key>
         <dict>
             <!-- Add your Supabase domain here -->
-            <key>csjsqfqdacymcuijbseh.supabase.co</key>
+            <key>ikqzdtlskbqkxwihqcow.supabase.co</key>
             <dict>
                 <key>NSExceptionAllowsInsecureHTTPLoads</key>
                 <false/>

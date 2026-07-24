@@ -71,10 +71,13 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _loadUserProfile(String userId) async {
     try {
+      print('👤 Loading user profile for: $userId');
       _state = AuthState.loading;
       notifyListeners();
 
       final userData = await SupabaseService.getUserById(userId);
+      print('📋 User data received: ${userData != null ? "Found" : "NULL"}');
+      
       if (userData != null) {
         _currentUser = app_user.User.fromJson(userData);
         _state = AuthState.authenticated;
@@ -83,10 +86,12 @@ class AuthProvider extends ChangeNotifier {
         // Notify listeners so other providers can react to user being loaded
         notifyListeners();
       } else {
+        print('❌ User profile not found in database');
         _state = AuthState.error;
         _errorMessage = 'Nu te-am găsit, habar n-am cine ești.';
       }
     } catch (e) {
+      print('💥 Error loading user profile: $e');
       _state = AuthState.error;
       _errorMessage = 'No stai să vezi ce am pățit când încercam să încarc profilu tău: $e';
     }

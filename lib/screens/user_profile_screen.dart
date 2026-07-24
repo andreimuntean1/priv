@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
+
 import '../models/user.dart';
 import '../providers/user_status_provider.dart';
 import '../providers/theme_provider.dart';
@@ -75,6 +75,35 @@ class UserProfileScreen extends StatelessWidget {
                                 const SizedBox(height: 4),
                                 Text(
                                   currentUser.username,
+                                  style: Theme.of(context).textTheme.bodyLarge,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Email Section
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.email_outlined,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Email',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  currentUser.email,
                                   style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                               ],

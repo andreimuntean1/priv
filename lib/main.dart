@@ -40,10 +40,10 @@ void main() async {
   // For mobile: Use .env file
   await Supabase.initialize(
     url: kIsWeb 
-      ? 'https://csjsqfqdacymcuijbseh.supabase.co'
+      ? 'https://ikqzdtlskbqkxwihqcow.supabase.co'
       : (dotenv.env['SUPABASE_URL'] ?? ''),
     anonKey: kIsWeb
-      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzanNxZnFkYWN5bWN1aWpic2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkzNjUsImV4cCI6MjA3ODA4NTM2NX0.5spSlh55HSnk_HvTPQlNvtmIM7NLpA3siLVPurSh1j8'
+      ? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcXpkdGxza2Jxa3h3aWhxY293Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODEzNDgsImV4cCI6MjEwMDQ1NzM0OH0.1vFsg_IUB3jAc9FbKvgeFo-ms6TWazLWDYgjsVuGrzw'
       : (dotenv.env['SUPABASE_ANON_KEY'] ?? ''),
   );
 

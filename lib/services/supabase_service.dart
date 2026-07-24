@@ -18,8 +18,8 @@ class SupabaseService {
   static String get fcmTokensTable => isDev ? 'fcm_tokens_dev' : 'fcm_tokens';
   static String get messageStatusTable => isDev ? 'message_status_dev' : 'message_status';
 
-  static const String supabaseUrl = 'https://csjsqfqdacymcuijbseh.supabase.co';
-  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNzanNxZnFkYWN5bWN1aWpic2VoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MDkzNjUsImV4cCI6MjA3ODA4NTM2NX0.5spSlh55HSnk_HvTPQlNvtmIM7NLpA3siLVPurSh1j8';
+  static const String supabaseUrl = 'https://ikqzdtlskbqkxwihqcow.supabase.co';
+  static const String supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrcXpkdGxza2Jxa3h3aWhxY293Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ4ODEzNDgsImV4cCI6MjEwMDQ1NzM0OH0.1vFsg_IUB3jAc9FbKvgeFo-ms6TWazLWDYgjsVuGrzw';
 
   // Storage buckets
   static const String messageAttachmentsBucket = 'message-attachments';
@@ -42,11 +42,24 @@ class SupabaseService {
 
   // Database operations
   static Future<Map<String, dynamic>?> getUserById(String userId) async {
-    final response = await client
+    print('🔍 getUserById - isDev: $isDev, table: $usersTable, userId: $userId');
+    var response = await client
         .from(usersTable)
         .select()
         .eq('id', userId)
         .maybeSingle();
+
+    if (response == null) {
+      final alternateTable = usersTable == 'users_dev' ? 'users' : 'users_dev';
+      print('🔍 getUserById - checking fallback table: $alternateTable');
+      response = await client
+          .from(alternateTable)
+          .select()
+          .eq('id', userId)
+          .maybeSingle();
+    }
+
+    print('📦 getUserById response: $response');
     return response;
   }
 
