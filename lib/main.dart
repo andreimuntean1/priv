@@ -164,10 +164,12 @@ class _PrivateMessagingAppState extends State<PrivateMessagingApp> {
         ChangeNotifierProvider(
           create: (_) => UpdateNotificationProvider(),
         ),
-        ChangeNotifierProxyProvider<AuthProvider, MessagingProvider>(
+        ChangeNotifierProxyProvider2<AuthProvider, UserStatusProvider, MessagingProvider>(
           create: (_) => MessagingProvider(),
-          update: (_, authProvider, messagingProvider) =>
-              messagingProvider!..updateUser(authProvider.currentUser),
+          update: (_, authProvider, userStatusProvider, messagingProvider) =>
+              messagingProvider!
+                ..updateUser(authProvider.currentUser)
+                ..setUserLookup(userStatusProvider.getUser),
         ),
       ],
       child: Consumer<ThemeProvider>(
@@ -220,13 +222,10 @@ class _MainAppState extends State<MainApp> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     
-    final authProvider = context.read<AuthProvider>();
-    
     switch (state) {
       case AppLifecycleState.resumed:
-        // App came to foreground
-        // Clear notifications as user is now "in chat"
-        context.read<MessagingProvider>().clearNotifications();
+        // App came to foreground: heal connection, sync missed messages, and clear notifications
+        context.read<MessagingProvider>().onAppResumed();
         break;
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:

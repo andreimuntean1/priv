@@ -592,22 +592,16 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
                   });
                 }
               },
-              onSendMessage: (content, attachments, replyToId) async {
-                final success = await context.read<MessagingProvider>().sendMessage(
+              onSendMessage: (content, attachments, replyToId) {
+                _clearReply();
+                context.read<MessagingProvider>().sendMessage(
                   content: content,
                   attachments: attachments,
                   replyToId: replyToId,
                 );
-
-                if (success) {
-                  // Clear reply after successful send
-                  _clearReply();
-                  
-                  // Scroll to bottom after sending
-                  Future.delayed(const Duration(milliseconds: 100), () {
-                    _scrollToBottom();
-                  });
-                }
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _scrollToBottom();
+                });
               },
             ),
           ],

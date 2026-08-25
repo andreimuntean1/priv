@@ -2,6 +2,7 @@ import 'user.dart';
 import 'file_attachment.dart';
 
 enum MessageType { text, image, file, audio }
+enum MessageSendStatus { sending, sent, failed }
 
 class Message {
   final String id;
@@ -17,6 +18,7 @@ class Message {
   final DateTime createdAt;
   final DateTime updatedAt;
   final DateTime? readAt;
+  final MessageSendStatus sendStatus;
 
   const Message({
     required this.id,
@@ -32,6 +34,7 @@ class Message {
     required this.createdAt,
     required this.updatedAt,
     this.readAt,
+    this.sendStatus = MessageSendStatus.sent,
   });
 
   factory Message.fromJson(Map<String, dynamic> json) {
@@ -96,6 +99,7 @@ class Message {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? readAt,
+    MessageSendStatus? sendStatus,
   }) {
     return Message(
       id: id ?? this.id,
@@ -111,8 +115,13 @@ class Message {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       readAt: readAt ?? this.readAt,
+      sendStatus: sendStatus ?? this.sendStatus,
     );
   }
+
+  bool get isSending => sendStatus == MessageSendStatus.sending;
+  bool get isSendFailed => sendStatus == MessageSendStatus.failed;
+  bool get isSent => sendStatus == MessageSendStatus.sent;
 
   bool get hasAttachments => attachments.isNotEmpty;
   bool get isReply => replyToId != null;

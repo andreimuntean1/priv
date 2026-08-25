@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../models/message.dart';
 import '../providers/auth_provider.dart';
+import '../providers/messaging_provider.dart';
 import '../providers/user_status_provider.dart';
 import '../utils/theme.dart';
 import '../providers/theme_provider.dart';
@@ -574,11 +575,61 @@ class _AnimatedMessageBubbleState extends State<AnimatedMessageBubble>
         left: isMyMessage ? 0 : 48,
         right: isMyMessage ? 0 : 0,
       ),
-      child: Text(
-        time,
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          fontSize: 11,
-        ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            time,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontSize: 11,
+            ),
+          ),
+          if (isMyMessage) ...[
+            const SizedBox(width: 4),
+            if (widget.message.isSending)
+              SizedBox(
+                width: 10,
+                height: 10,
+                child: CircularProgressIndicator(
+                  strokeWidth: 1.5,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).textTheme.bodySmall?.color ?? Colors.white54,
+                  ),
+                ),
+              )
+            else if (widget.message.isSendFailed)
+              GestureDetector(
+                onTap: () {
+                  context.read<MessagingProvider>().retryMessage(widget.message.id);
+                },
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 13,
+                      color: Colors.redAccent,
+                    ),
+                    SizedBox(width: 2),
+                    Text(
+                      'Reîncearcă',
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: Colors.redAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Icon(
+                Icons.done,
+                size: 13,
+                color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7) ?? Colors.white54,
+              ),
+          ],
+        ],
       ),
     );
   }
@@ -613,6 +664,7 @@ class _AnimatedMessageBubbleState extends State<AnimatedMessageBubble>
   }
 
   bool _shouldShowTimestamp() {
+    if (widget.message.isSending || widget.message.isSendFailed) return true;
     if (widget.nextMessage == null) return true;
     if (widget.nextMessage!.senderId != widget.message.senderId) return true;
     

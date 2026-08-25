@@ -25,12 +25,46 @@ class SupabaseService {
   static const String messageAttachmentsBucket = 'message-attachments';
   static const String profileAvatarsBucket = 'profile-avatars';
 
+  static RealtimeChannel? _broadcastChannel;
+
   // Real-time subscriptions
   static Stream<List<Map<String, dynamic>>> subscribeToMessages() {
     return client
         .from(messagesTable)
         .stream(primaryKey: ['id'])
         .order('created_at', ascending: true);
+  }
+
+  static RealtimeChannel initBroadcastChannel({
+    required void Function(Map<String, dynamic> payload) onBroadcastReceived,
+  }) {
+    if (_broadcastChannel != null) {
+      try {
+        client.removeChannel(_broadcastChannel!);
+      } catch (_) {}
+    }
+    final channelName = isDev ? 'chat_broadcast_dev' : 'chat_broadcast';
+    _broadcastChannel = client.channel(channelName);
+    _broadcastChannel!.onBroadcast(
+      event: 'new_message',
+      callback: (payload) {
+        onBroadcastReceived(payload);
+      },
+    ).subscribe();
+    return _broadcastChannel!;
+  }
+
+  static Future<void> broadcastMessage(Map<String, dynamic> messagePayload) async {
+    try {
+      final channelName = isDev ? 'chat_broadcast_dev' : 'chat_broadcast';
+      final channel = _broadcastChannel ?? client.channel(channelName);
+      await channel.sendBroadcastMessage(
+        event: 'new_message',
+        payload: messagePayload,
+      );
+    } catch (e) {
+      print('Broadcast error (non-fatal): $e');
+    }
   }
 
   static Stream<List<Map<String, dynamic>>> subscribeToUsers() {
@@ -75,6 +109,19 @@ class SupabaseService {
     return List<Map<String, dynamic>>.from(messages);
   }
 
+  static Future<List<Map<String, dynamic>>> getMessagesSince(DateTime timestamp) async {
+    final messages = await client
+        .from(messagesTable)
+        .select('''
+          *,
+          sender:$usersTable!sender_id(*),
+          file_attachments:$fileAttachmentsTable(*)
+        ''')
+        .gt('created_at', timestamp.toIso8601String())
+        .order('created_at', ascending: true);
+    return List<Map<String, dynamic>>.from(messages);
+  }
+
   static Future<Map<String, dynamic>?> getMessageById(String messageId) async {
     final response = await client
         .from(messagesTable)
@@ -90,6 +137,7 @@ class SupabaseService {
 
   // Make this static and robust for background usage if client is available
   static Future<Map<String, dynamic>> sendMessage({
+    String? id,
     required String content,
     required String senderId,
     String? replyToId,
@@ -99,13 +147,18 @@ class SupabaseService {
   }) async {
     final supabase = backgroundClient ?? client;
     
-    final response = await supabase.from(messagesTable).insert({
+    final payload = <String, dynamic>{
       'content': content,
       'sender_id': senderId,
       'reply_to_id': replyToId,
       'message_type': messageType ?? 'text',
       'created_at': DateTime.now().toIso8601String(),
-    }).select().single();
+    };
+    if (id != null) {
+      payload['id'] = id;
+    }
+    
+    final response = await supabase.from(messagesTable).insert(payload).select().single();
 
     // Create new attachment records linked to the message
     if (attachmentIds != null && attachmentIds.isNotEmpty) {
